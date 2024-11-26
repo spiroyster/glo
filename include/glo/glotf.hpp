@@ -19,8 +19,10 @@ namespace glo
         int xAdvance_;  //xAdvance
     };
 
+    // A character map containing ascii mappings to texture regions...
     typedef std::map<char, glyph> ascii_character_map;
 
+    // Wrapper for a bitmap font
     class bitmap_font : public texture
     {
         ascii_character_map character_map_;

@@ -103,10 +103,10 @@ GLWINDOW_DRAW
     glUseProgram(NULL);
 
     // we also draw the hud...
-    //hud_->draw_frame();
+    hud_->draw_frame();
 
     // To manually draw text, colour changes honoured, use draw, draws, drawc etc...
-    hud_->draw_frame([=]() 
+    /*hud_->draw_frame([=]() 
         {
             hud_->colour(1.0, 1.0, 1.0);
             *hud_ << "some custom string";
@@ -114,12 +114,7 @@ GLWINDOW_DRAW
             *hud_ << " some custom coloured string";
             hud_->colour(1.0, 1.0, 1.0);
             *hud_ << " back to normal colour string";
-        });
-}
-
-GLWINDOW_IDLE
-{
-    //angle += 0.1f;
+        });*/
 }
 
 GLWINDOW_RESIZE(w, h)
