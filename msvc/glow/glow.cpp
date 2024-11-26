@@ -1,5 +1,6 @@
 // Main for glo window...
-#include <glo\glow.hpp>
+//#include <glo\glow.hpp>
+#include <glo.hpp>
 
 float angle = 0.0f;
 
@@ -40,7 +41,9 @@ GLWINDOW_DRAW
 
 GLWINDOW_IDLE
 {
-    angle += 0.1f;
+    // Check the frame limiter, only increment angle if frame time has passed...
+    if (glwindow_get()->frame_limiter())
+        angle += 0.2f;
 }
 
 GLWINDOW_RESIZE(w, h)

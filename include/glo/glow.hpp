@@ -216,11 +216,24 @@ public:
     // mouse click handler...
     void click_begin(mouse_button button)
     {
-        timeStamp_ = std::chrono::steady_clock::now();
+        mouse_time_stamp_ = std::chrono::steady_clock::now();
         mouse_button_ = button;
     }
-    bool is_click(mouse_button button) const { return (button == mouse_button_ && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStamp_).count() < glwindow_get()->click_duration_); }
-
+    bool is_click(mouse_button button) const { return (button == mouse_button_ && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - mouse_time_stamp_).count() < glwindow_get()->click_duration_); }
+    bool frame_limiter()
+    {
+        if (target_fps_)
+        {
+            auto fps_now = std::chrono::steady_clock::now();
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(fps_now - fps_time_stamp_).count() > (1000 / target_fps_))
+            {
+                fps_time_stamp_ = fps_now;
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
 protected:
 
     const glwindow_str& window_title() const { return window_title_; }
@@ -259,7 +272,8 @@ private:
     int click_duration_ = 200;
 
     // mouse click handler...
-    std::chrono::steady_clock::time_point timeStamp_ = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point mouse_time_stamp_ = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point fps_time_stamp_ = std::chrono::steady_clock::now();
     mouse_button mouse_button_ = mouse_button::none;
 
     std::shared_ptr<glcontext> context_;
@@ -362,11 +376,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         return 1;
     case WM_PAINT:
     {
-        PAINTSTRUCT ps;
-        BeginPaint(hWnd, &ps);
-        glwindow_get()->draw();
-        SwapBuffers(GetDC(hWnd));
-        EndPaint(hWnd, &ps);
+        // Frame limiter...
+        //if (glwindow_get()->frame_limiter())
+        {
+            PAINTSTRUCT ps;
+            BeginPaint(hWnd, &ps);
+            glwindow_get()->draw();
+            SwapBuffers(GetDC(hWnd));
+            EndPaint(hWnd, &ps);
+        }
         break;
     }
     case WM_SIZE:
