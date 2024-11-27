@@ -7,8 +7,6 @@
 #include <map>
 #include <memory>
 
-#define GLO_USE_STB
-
 #ifdef GLO_USE_STB
 #define STB_TRUETYPE_IMPLEMENTATION  
 #define STBTT_RASTERIZER_VERSION 1
@@ -23,132 +21,49 @@ namespace glo
 {
     struct glyph
     {
-        int width_;     // width in pixels of glyph
-        int height_;    // height in pixels of glyph
-        int x_;	        // origin x of glyph
-        int y_;         // origin y of glyph
-        int xOff_;		// start x of glyph
-        int yOff_;		//start y of glyph
-        int xAdvance_;  //xAdvance
+        int width_ = 0;     // width in pixels of glyph
+        int height_ = 0;    // height in pixels of glyph
+        int x_ = 0;	        // origin x of glyph
+        int y_ = 0;         // origin y of glyph
+        int xOff_ = 0;		// start x of glyph
+        int yOff_ = 0;		//start y of glyph
+        int xAdvance_ = 0;  //xAdvance
     };
 
-    //typedef std::map<char, glyph> ascii_character_map;
-
-    // Wrapper for a bitmap font
-    /*class bitmap_font : public texture
+    class font
     {
-        ascii_character_map character_map_;
-    public:
-        bitmap_font(const image& img, const ascii_character_map& character_map)
-            : texture(img, GL_LINEAR, GL_REPEAT), character_map_(character_map)
-        {
-        }
-
-        bitmap_font(const image& img, int glyph_origin_x, int glyph_origin_y, int glyph_width, int glyph_height)
-            : texture(img, GL_LINEAR, GL_REPEAT)
-        {
-            int x = glyph_origin_x;
-            int y = glyph_origin_y;
-            for (int i = 32; i < 128; i++)
-            {
-                glyph& c = character_map_[i];
-                c.width_ = abs(glyph_width);
-                c.height_ = abs(glyph_height);
-                c.x_ = x;
-                c.y_ = y;
-                c.xOff_ = 0;
-                c.yOff_ = 0;
-                c.xAdvance_ = 0;
-
-                x += static_cast<int>(glyph_width);
-                if (x >= img.width_)
-                {
-                    x = 0;
-                    y += static_cast<int>(glyph_height);
-                }
-                if (x < 0)
-                {
-                    x = img.width_;
-                    y += static_cast<int>(glyph_height);
-                }
-            }
-        }
-        const glyph& character(char c)
-        {
-            return character_map_[c];
-        }
-    };   */
-
-    class type_face
-    {
+        glyph default_character;
     public:
 
-        typedef wchar_t character;
-        typedef std::map<character, glyph> character_map;
-
-        type_face(const std::shared_ptr<texture>& texture, const character_map& map)
-            :  texture_(texture), map_(map)
+        typedef std::map<wchar_t, glyph> character_map;
+        
+        font(const std::shared_ptr<texture>& texture, const character_map& map, int max_height, int max_width, int baseline)
+            :  atlas_(texture), map_(map), max_height_(max_height), max_width_(max_width), baseline_(baseline)
         {
+            default_character.width_ = max_width_;
+            default_character.height_ = max_height_;
         }
 
-        GLuint ID() const { return texture_->ID(); }
-        const character_map& character() const { return map_; }
+        const std::shared_ptr<texture>& atlas() const { return atlas_; }
+        const character_map& map() const { return map_; }
+        glyph character(wchar_t c) const { auto itr = map_.find(c); return itr == map_.end() ? default_character : itr->second; }
+        
+        int max_height() const { return max_height_; }
+        int max_width() const { return max_width_; }
+        int baseline() const { return baseline_; }
 
     private:
-        std::shared_ptr<texture> texture_;
+        std::shared_ptr<texture> atlas_;
         character_map map_;
+        int max_height_;
+        int max_width_;
+        int baseline_;
     };
 
-    /*class bitmap_font : public type_face
+    //static std::pair<image, font::character_map> bitmap_font(const image& img, int glyph_origin_x, int glyph_origin_y, int glyph_width, int glyph_height)
+    static font bitmap_font(const image& img, int glyph_origin_x, int glyph_origin_y, int glyph_width, int glyph_height)
     {
-    public:
-        static character_map generate_map(const image& img, int glyph_origin_x, int glyph_origin_y, int glyph_width, int glyph_height)
-        {
-            character_map char_map;
-
-            int x = glyph_origin_x;
-            int y = glyph_origin_y;
-            for (int i = 32; i < 128; i++)
-            {
-                glyph& c = char_map[i];
-                c.width_ = abs(glyph_width);
-                c.height_ = abs(glyph_height);
-                c.x_ = x;
-                c.y_ = y;
-                c.xOff_ = 0;
-                c.yOff_ = 0;
-                c.xAdvance_ = 0;
-
-                x += static_cast<int>(glyph_width);
-                if (x >= img.width_)
-                {
-                    x = 0;
-                    y += static_cast<int>(glyph_height);
-                }
-                if (x < 0)
-                {
-                    x = img.width_;
-                    y += static_cast<int>(glyph_height);
-                }
-            }
-
-            return char_map;
-        }
-
-        bitmap_font(const image& img, const character_map& map)
-            :   type_face(std::make_shared<texture>(img, GL_LINEAR, GL_REPEAT), map)
-        {
-        }
-
-        bitmap_font(const image& img, int glyph_origin_x, int glyph_origin_y, int glyph_width, int glyph_height)
-            :   type_face(std::make_shared<texture>(img, GL_LINEAR, GL_REPEAT), generate_map(img, glyph_origin_x, glyph_origin_y, glyph_width, glyph_height))
-        {
-        }
-    };*/
-
-    static std::pair<image, type_face::character_map> bitmap_font(const image& img, int glyph_origin_x, int glyph_origin_y, int glyph_width, int glyph_height)
-    {
-        type_face::character_map char_map;
+        font::character_map char_map;
 
         int x = glyph_origin_x;
         int y = glyph_origin_y;
@@ -161,7 +76,7 @@ namespace glo
             c.y_ = y;
             c.xOff_ = 0;
             c.yOff_ = 0;
-            c.xAdvance_ = 0;
+            c.xAdvance_ = glyph_width;
 
             x += static_cast<int>(glyph_width);
             if (x >= img.width_)
@@ -176,17 +91,15 @@ namespace glo
             }
         }
 
-        return std::make_pair(img, char_map);
+        //return std::make_pair(img, char_map);
+        return font(std::make_shared<texture>(img, GL_NEAREST, GL_REPEAT), char_map, abs(glyph_width), abs(glyph_height), 0);
     }
-
 
 #ifdef GLO_USE_STB
 
-   
-    
-    static std::pair<image, type_face::character_map> ttf_font(const std::string& filepath, int ptSize)
+    static font ttf_font(const std::string& filepath, int ptSize)
     {
-        type_face::character_map char_map;
+        font::character_map char_map;
 
         //16 pixel =12 ptSize  (factor=4/3)
         //96 Glyph for ASCII, i.e. arrange 10 x 10 in the Fontmap
@@ -208,8 +121,8 @@ namespace glo
         auto size = std::size_t(fend - fileIn.tellg());
         std::vector<unsigned char> buffer(size);
         fileIn.read((char*)buffer.data(), buffer.size());
-        stbtt_fontinfo font;
-        stbtt_InitFont(&font, reinterpret_cast<unsigned char*>(buffer.data()), 0);
+        stbtt_fontinfo f;
+        stbtt_InitFont(&f, reinterpret_cast<unsigned char*>(buffer.data()), 0);
     
         unsigned int fontMapWidth = pixelWH, fontMapHeight = pixelWH;
     
@@ -220,7 +133,7 @@ namespace glo
         stbtt_PackFontRange(&pack, reinterpret_cast<unsigned char*>(buffer.data()), 0, static_cast<float>(ptSize), firstCodePoint, numberOfGlyph - 1, pcdata.data());
         stbtt_PackSetOversampling(&pack, 3, 2);
         stbtt_PackEnd(&pack);
-        float scale = stbtt_ScaleForPixelHeight(&font, static_cast<float>(ptSize));
+        float scale = stbtt_ScaleForPixelHeight(&f, static_cast<float>(ptSize));
         int baseLine = 0;
         int maxHeight = 0;
         int maxWidth = 0;
@@ -232,7 +145,7 @@ namespace glo
     
             int advance, lsb = 0;
     
-            stbtt_GetCodepointHMetrics(&font, character, &advance, &lsb);
+            stbtt_GetCodepointHMetrics(&f, character, &advance, &lsb);
     
             g.xAdvance_ = static_cast<int>(std::roundf(static_cast<float>(advance) * scale));
             g.xOff_ = static_cast<int>(b->xoff);
@@ -250,29 +163,26 @@ namespace glo
         }
         baseLine = -baseLine;
 
-        //auto font_texture = std::make_shared<texture>()
+        //create an image to hold all the characters...
         image img;
-        img.
-
-        //return std::make_pair(img, char_map);
-
-
-
-    /*
-    
-        std::shared_ptr<AxW::Draw::ImageRGBA32> fontMap =
-            std::make_shared<AxW::Draw::ImageRGBA32>(fontMapWidth, fontMapHeight);
-    
-        for (unsigned int p = 0; p < fontBitmap.size(); ++p)
-            *fontMap->Pixel(p) = AxW::Draw::Colour::RGBA32(fontBitmap[p]);
-    
-        fontMap->FlipV();
-    
-        std::filesystem::path p(ttfFilepath);
-        fontMap_ = std::make_shared<AxW::Draw::Texture>(p.stem().string() + std::to_string(ptSize), fontMap);*/
+        img.width_ = fontMapWidth;
+        img.height_ = fontMapHeight;
+        img.channels_ = 4;
+        img.data_ = std::vector<unsigned char>(img.width_ * img.height_ * img.channels_);
+        for (unsigned int p = 0; p < (img.width_ * img.height_); ++p)
+        {
+            img.data_[(p * 4) + 0] = fontBitmap[p];
+            img.data_[(p * 4) + 1] = fontBitmap[p];
+            img.data_[(p * 4) + 2] = fontBitmap[p];
+            img.data_[(p * 4) + 3] = fontBitmap[p];
+        }
+        image_flipv(img);
+        
+        return font(std::make_shared<texture>(img, GL_LINEAR, GL_REPEAT), char_map, maxHeight, maxWidth, baseLine);
     }
     
 #endif // GLO_USE_STB
+
         
 #ifdef GLO_USE_FREETYPE
         static font ttf()
@@ -336,7 +246,7 @@ namespace glo
 
 #endif
 
-    }
+    
 
 
 

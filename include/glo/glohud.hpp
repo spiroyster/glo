@@ -13,7 +13,8 @@ namespace glo
 {
     class hud
     {
-        bitmap_font type_face_;
+        //bitmap_font type_face_;
+        font font_;
         quad quad_;
 
         unsigned int program_;
@@ -40,6 +41,8 @@ namespace glo
         float y_step_;
         float s_step_;
         float t_step_;
+        float char_x_step_;
+        float char_y_step_;
 
         int viewport_width_;
         int viewport_height_;
@@ -60,8 +63,10 @@ namespace glo
 
             x_step_ = 2.0f / static_cast<float>(viewport_width_);
             y_step_ = 2.0f / static_cast<float>(viewport_height_);
-            s_step_ = 1.0f / static_cast<float>(type_face_.image_width());
-            t_step_ = 1.0f / static_cast<float>(type_face_.image_height());
+            s_step_ = 1.0f / static_cast<float>(font_.atlas()->image_width());
+            t_step_ = 1.0f / static_cast<float>(font_.atlas()->image_height());
+            char_x_step_ = static_cast<float>(char_width_) / static_cast<float>(font_.max_width());
+            char_y_step_ = static_cast<float>(char_height_) / static_cast<float>(font_.max_height());
         }
 
         void start_render()
@@ -78,7 +83,7 @@ namespace glo
 
             glUseProgram(program_);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, type_face_.ID());
+            glBindTexture(GL_TEXTURE_2D, font_.atlas()->ID());
             glUniform1i(frag_bitmap_font_location_, 0);
 
             is_drawing_ = true;     // nothing will be buffered...
@@ -96,11 +101,11 @@ namespace glo
         void paint_glyph(const glo::glyph& g, int x, int y)
         {
             GLFN(GLUNIFORM2F, glUniform2f)
-            glUniform2f(vert_xy_location_, static_cast<float>(x) * x_step_, static_cast<float>(y) * y_step_);
-            glUniform2f(vert_wh_location_, static_cast<float>(char_width_) * x_step_, static_cast<float>(char_height_) * y_step_);
+            glUniform2f(vert_xy_location_, (static_cast<float>(x) + (char_x_step_ * g.xOff_)) * x_step_, (static_cast<float>(y) + (char_y_step_ * g.yOff_)) * y_step_);
+            glUniform2f(vert_wh_location_, char_x_step_ * g.width_ * x_step_, char_y_step_ * g.height_ * y_step_);
             glUniform2f(vert_stxy_location_, static_cast<float>(g.x_) * s_step_, static_cast<float>(g.y_) * t_step_);
             glUniform2f(vert_stwh_location_, static_cast<float>(g.width_) * s_step_, static_cast<float>(g.height_) * t_step_);
-            quad_.draw_frame();
+            quad_.draw();
         }
 
         struct render_wrapper
@@ -112,8 +117,8 @@ namespace glo
         };
 
     public:
-        hud(int viewport_width, int viewport_height, const bitmap_font& type_face)
-            : type_face_(type_face), viewport_width_(viewport_width), viewport_height_(viewport_height)
+        hud(int viewport_width, int viewport_height, const font& tf)
+            : font_(tf), viewport_width_(viewport_width), viewport_height_(viewport_height)
         {
             // create our hud shader program...
             program_ = glo::glsl_link({ 
@@ -175,7 +180,7 @@ namespace glo
             frag_bgcolour_location_ = glGetUniformLocation(program_, "bgColour");
             
             // Set the default colour and char dim...
-            colour(0.8f, 0.8f, 0.8f, 1.0f, 0, 0, 0, 0.5f);
+            colour(0.8f, 0.8f, 0.8f, 1.0f, 0, 0, 0, 0);
             char_width_ = 11;
             char_height_ = 24;
             resize(viewport_width, viewport_height);
@@ -236,7 +241,7 @@ namespace glo
         void word_wrap(bool wrap) { word_wrap_ = wrap; }
 
         // Paint at location (pixel x, pixel y)...
-        void paintc(char c, int x, int y) { paint_glyph(type_face_.character(c), x, y); }
+        void paintc(char c, int x, int y) { paint_glyph(font_.character(c), x, y); }
         void paints(const std::string& s, int x, int y)
         {
             for (unsigned int c = 0; c < s.size(); ++c)
@@ -244,7 +249,7 @@ namespace glo
         }
         
         // Draw at location (row, column)...
-        void drawc(char c, int column, int row) { paint_glyph(type_face_.character(c), origin_x_ + (column * char_width_), origin_y_ + (row * char_height_)); }
+        void drawc(char c, int column, int row) { paint_glyph(font_.character(c), origin_x_ + (column * char_width_), origin_y_ + (row * char_height_)); }
         void draws(const std::string& s, int column, int row)
         {
             int x = column;

@@ -87,7 +87,7 @@ namespace glo
 
         virtual ~quad() {}
 
-        void draw_frame() const
+        void draw() const
         {
             glBindVertexArray(vao_);
             glBindBuffer(GL_ARRAY_BUFFER, points_);
@@ -106,7 +106,7 @@ namespace glo
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, frame);
             glUniform1i(glGetUniformLocation(program_, "frame"), 0);
-            draw_frame();
+            draw();
             glBindTexture(GL_TEXTURE_2D, NULL);
         }
     };

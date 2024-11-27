@@ -30,7 +30,7 @@ GLWINDOW(4, 3)
     glwindow::height(600);
 
     // target FPS (the polling rate of window redraw, or 0 for auto)...
-    glwindow::target_fps(1);
+    glwindow::target_fps(60);
 
     // mouse click duration (duration of pressed mouse button, anything press longer than this does NOT register as a 'click')...
     glwindow::click_duration(100);
@@ -72,7 +72,9 @@ GLWINDOW(4, 3)
         });
 
     // Create our hud...it uses a bitmap font (load an image) so first we need create that..
-    hud_ = std::make_unique<glo::hud>(800, 600, glo::bitmap_font(glo::image_read("font1.png"), 0, 512-(3 * 32), 32, -32));
+    //hud_ = std::make_unique<glo::hud>(800, 600, glo::bitmap_font(glo::image_read("font1.png"), 0, 512 - (3 * 32), 32, -32));
+    hud_ = std::make_unique<glo::hud>(800, 600, glo::ttf_font("rhbold.ttf", 48));
+    hud_->char_dim(15, 25);
 
     // Add some text
     //hud_->println("0123456789abcdefghijklmnopqrstuvwxyz");
@@ -81,9 +83,9 @@ GLWINDOW(4, 3)
     *hud_ << '\n';
     *hud_ << "some more text...\n";
 
-    
     // Set the colour...
-    //hud_->colour_foreground(0, 1.0, 0, 0.5);
+    //hud_->colour(0, 1.0, 0, 0.2);
+    //hud_->background(0, 0, 1.0f, 1.0f);
 
 }
 
@@ -106,7 +108,7 @@ GLWINDOW_DRAW
     hud_->draw_frame();
 
     // To manually draw text, colour changes honoured, use draw, draws, drawc etc...
-    /*hud_->draw_frame([=]() 
+   /* hud_->draw_frame([=]() 
         {
             hud_->colour(1.0, 1.0, 1.0);
             *hud_ << "some custom string";
@@ -120,5 +122,7 @@ GLWINDOW_DRAW
 GLWINDOW_RESIZE(w, h)
 {
     glViewport(0, 0, w, h);
+
+    // Resize the hud
     hud_->resize(w, h);
 }
