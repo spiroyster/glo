@@ -3,9 +3,9 @@
 #define GLO_USE_STB
 
 #include <glo\glow.hpp>
-#include <glo\glohud.hpp>
+#include <glo\glohud2.hpp>
 
-float angle = 0.0f;
+//float angle = 0.0f;
 
 std::unique_ptr<glo::hud> hud_;
 GLuint vao_;
@@ -73,15 +73,15 @@ GLWINDOW(4, 3)
 
     // Create our hud...it uses a bitmap font (load an image) so first we need create that..
     //hud_ = std::make_unique<glo::hud>(800, 600, glo::bitmap_font(glo::image_read("font1.png"), 0, 512 - (3 * 32), 32, -32));
-    hud_ = std::make_unique<glo::hud>(800, 600, glo::ttf_font("rhbold.ttf", 48));
-    hud_->char_dim(15, 25);
+    hud_ = std::make_unique<glo::hud>(800, 600, glo::ttf_font("rhregular.ttf", 48));
+    hud_->char_dim(20, 30);
+    hud_->char_stride(-1);
 
     // Add some text
-    //hud_->println("0123456789abcdefghijklmnopqrstuvwxyz");
-    *hud_ << "0123456789abcdefghijklmnopqrstuvwxyz";
+    *hud_ << "0123456789abcdef g hijklmnopqrstuvwxyz\n";
     *hud_ << "...";
-    *hud_ << '\n';
-    *hud_ << "some more text...\n";
+    *hud_ << "\n";
+    *hud_ << "some buffer text...\n";
 
     // Set the colour...
     //hud_->colour(0, 1.0, 0, 0.2);
@@ -108,15 +108,24 @@ GLWINDOW_DRAW
     hud_->draw_frame();
 
     // To manually draw text, colour changes honoured, use draw, draws, drawc etc...
-   /* hud_->draw_frame([=]() 
+    hud_->draw_frame([=]() 
         {
-            hud_->colour(1.0, 1.0, 1.0);
+            hud_->fg(0, 1.0, 0);
+            hud_->draw("some drawn\ntext", 10, 10, -1);
+
+            hud_->fg(0, 0, 1.0);
+            hud_->paint("some painted\ntext", 10, 50, 0);
+
+
+            //hud_->draw(hud_->fg("some text", 0, 1.0, 0));
+
+            /*hud_->colour(1.0, 1.0, 1.0);
             *hud_ << "some custom string";
             hud_->colour(0, 1.0, 0);
             *hud_ << " some custom coloured string";
             hud_->colour(1.0, 1.0, 1.0);
-            *hud_ << " back to normal colour string";
-        });*/
+            *hud_ << " back to normal colour string";*/
+        });
 }
 
 GLWINDOW_RESIZE(w, h)

@@ -45,5 +45,8 @@
     <ClInclude Include="..\include\glo\glow.hpp">
       <Filter>Header Files\glo</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\glo\glohud2.hpp">
+      <Filter>Header Files\glo</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

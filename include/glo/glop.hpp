@@ -33,6 +33,7 @@
 #endif
 // --- Windows Platform ---
 
+
 // --- X.org Platform ---
 #ifndef GLO_X
 
@@ -42,6 +43,10 @@
 
 #endif
 // --- X.org Platform ---
+
+
+// OpenGL versions...
+
 
 #endif // GLOP_HPP
 

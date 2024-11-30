@@ -54,6 +54,8 @@ namespace glo
         bool word_wrap_ = false;
         std::vector<std::string> buffer_;
 
+
+
         void calculate_extents()
         {
             rows_ = viewport_height_ / char_height_;
@@ -63,8 +65,11 @@ namespace glo
 
             x_step_ = 2.0f / static_cast<float>(viewport_width_);
             y_step_ = 2.0f / static_cast<float>(viewport_height_);
+            
+            // Scale the texture coordinates stride depedning on glyph pixel size and current atlas dimensions
             s_step_ = 1.0f / static_cast<float>(font_.atlas()->image_width());
             t_step_ = 1.0f / static_cast<float>(font_.atlas()->image_height());
+            
             char_x_step_ = static_cast<float>(char_width_) / static_cast<float>(font_.max_width());
             char_y_step_ = static_cast<float>(char_height_) / static_cast<float>(font_.max_height());
         }
@@ -97,15 +102,39 @@ namespace glo
         }
     protected:
 
+        // Calculate the horizontal stride for the next character in a string (N.B 
+       /* float char_stride(float x, int char_pixels)
+        {
+
+        }*/
+
         // render operations....
-        void paint_glyph(const glo::glyph& g, int x, int y)
+        void paint_glyph(const glo::glyph& g, float x, float y, float w, float h)
         {
             GLFN(GLUNIFORM2F, glUniform2f)
-            glUniform2f(vert_xy_location_, (static_cast<float>(x) + (char_x_step_ * g.xOff_)) * x_step_, (static_cast<float>(y) + (char_y_step_ * g.yOff_)) * y_step_);
-            glUniform2f(vert_wh_location_, char_x_step_ * g.width_ * x_step_, char_y_step_ * g.height_ * y_step_);
+            glUniform2f(vert_xy_location_, x, y);
+            glUniform2f(vert_wh_location_, w, h);
             glUniform2f(vert_stxy_location_, static_cast<float>(g.x_) * s_step_, static_cast<float>(g.y_) * t_step_);
             glUniform2f(vert_stwh_location_, static_cast<float>(g.width_) * s_step_, static_cast<float>(g.height_) * t_step_);
             quad_.draw();
+        }
+
+
+        void paint_glyph(const glo::glyph& g, int x, int y)
+        {
+            paint_glyph(g,
+                (static_cast<float>(x) + (char_x_step_ * g.xOff_)) * x_step_,               // x = pixel x, char_x_Step is the raio of the texture pixel size to char size
+                (static_cast<float>(y) + (char_y_step_ * g.yOff_)) * y_step_,
+                char_x_step_ * g.width_ * x_step_,
+                char_y_step_ * g.height_ * y_step_);
+
+
+            //GLFN(GLUNIFORM2F, glUniform2f)
+            //glUniform2f(vert_xy_location_, (static_cast<float>(x) + (char_x_step_ * g.xOff_)) * x_step_, (static_cast<float>(y) + (char_y_step_ * g.yOff_)) * y_step_);
+            //glUniform2f(vert_wh_location_, char_x_step_ * g.width_ * x_step_, char_y_step_ * g.height_ * y_step_);
+            //glUniform2f(vert_stxy_location_, static_cast<float>(g.x_) * s_step_, static_cast<float>(g.y_) * t_step_);
+            //glUniform2f(vert_stwh_location_, static_cast<float>(g.width_) * s_step_, static_cast<float>(g.height_) * t_step_);
+            //quad_.draw();
         }
 
         struct render_wrapper
@@ -181,18 +210,12 @@ namespace glo
             
             // Set the default colour and char dim...
             colour(0.8f, 0.8f, 0.8f, 1.0f, 0, 0, 0, 0);
-            char_width_ = 11;
+            char_width_ = 24;
             char_height_ = 24;
             resize(viewport_width, viewport_height);
         }
 
         // Appearance...
-        void char_dim(int width, int height)
-        {
-            char_width_ = width;
-            char_height_ = height;
-            calculate_extents();
-        }
         std::string colour(float r, float g, float b, float a = 1.0f)
         {
             GLFN(GLUSEPROGRAM, glUseProgram)
@@ -204,8 +227,8 @@ namespace glo
         std::string colour(float r, float g, float b, float a, const std::string& str)
         {
             GLFN(GLUSEPROGRAM, glUseProgram)
-                GLFN(GLUNIFORM4F, glUniform4f)
-                glUseProgram(program_);
+            GLFN(GLUNIFORM4F, glUniform4f)
+            glUseProgram(program_);
             glUniform4f(frag_fgcolour_location_, r, g, b, a);
             return str;
         }
@@ -226,18 +249,11 @@ namespace glo
         }
 
         // Dimensions....
+        void char_dim(int width, int height) { char_width_ = width; char_height_ = height; calculate_extents(); }
         int rows() const { return rows_; }
         int columns() const { return columns_; }
-        virtual void resize(int viewport_width, int viewport_height)
-        {
-            viewport_width_ = viewport_width;
-            viewport_height_ = viewport_height;
-            calculate_extents();
-        }
-        void tab_size(int wscount)
-        {
-            tab_size_ = wscount;
-        }
+        virtual void resize(int viewport_width, int viewport_height) { viewport_width_ = viewport_width; viewport_height_ = viewport_height; calculate_extents(); }
+        void tab_size(int wscount) { tab_size_ = wscount; }
         void word_wrap(bool wrap) { word_wrap_ = wrap; }
 
         // Paint at location (pixel x, pixel y)...
