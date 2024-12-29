@@ -115,16 +115,6 @@ GLWINDOW_DRAW
 
             hud_->fg(0, 0, 1.0);
             hud_->paint("some painted\ntext", 10, 50, 0);
-
-
-            //hud_->draw(hud_->fg("some text", 0, 1.0, 0));
-
-            /*hud_->colour(1.0, 1.0, 1.0);
-            *hud_ << "some custom string";
-            hud_->colour(0, 1.0, 0);
-            *hud_ << " some custom coloured string";
-            hud_->colour(1.0, 1.0, 1.0);
-            *hud_ << " back to normal colour string";*/
         });
 }
 

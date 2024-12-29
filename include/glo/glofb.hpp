@@ -12,6 +12,9 @@ namespace glo
     {
         GLFN(GLBINDFRAMEBUFFER, glBindFramebuffer)
         GLFN(GLFRAMEBUFFERTEXTURE, glFramebufferTexture)
+        GLFN(GLGENFRAMEBUFFERS, glGenFramebuffers)
+        GLFN(GLDRAWBUFFERS, glDrawBuffers)
+        GLFN(GLCHECKFRAMEBUFFERSTATUS, glCheckFramebufferStatus)
 
     public:
 
@@ -27,7 +30,6 @@ namespace glo
         frame_buffer(int width, int height, float scale = 1.0f)
             : width_(width), height_(height), scale_(scale)
         {
-            GLFN(GLGENFRAMEBUFFERS, glGenFramebuffers)
             glGenFramebuffers(1, &fbo_);
         }
 
@@ -68,11 +70,8 @@ namespace glo
         // Add a target
         void color_attachment(GLint internal_format, GLenum format, GLenum type, GLenum filter, GLenum wrapping)
         {
-            GLFN(GLDRAWBUFFERS, glDrawBuffers)
-                GLFN(GLCHECKFRAMEBUFFERSTATUS, glCheckFramebufferStatus)
-
-                // add a target...
-                attachment t;
+            // add a target...
+            attachment t;
             t.internal_format_ = internal_format;
             t.format_ = format;
             t.type_ = type;

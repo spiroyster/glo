@@ -51,12 +51,15 @@ namespace glo
         int frag_fgcolour_location_ = -1;
         int frag_bgcolour_location_ = -1;
 
+        GLFN(GLUNIFORM1I, glUniform1i)
+        GLFN(GLUSEPROGRAM, glUseProgram)
+        GLFN(GLACTIVETEXTURE, glActiveTexture)
+        GLFN(GLGETUNIFORMLOCATION, glGetUniformLocation)
+        GLFN(GLUNIFORM4F, glUniform4f)
+        GLFN(GLUNIFORM2F, glUniform2f)
+
         void render_start()
         {
-            GLFN(GLUNIFORM1I, glUniform1i)
-            GLFN(GLUSEPROGRAM, glUseProgram)
-            GLFN(GLACTIVETEXTURE, glActiveTexture)
-
             glViewport(0, 0, viewport_width_, viewport_height_);
             glClearColor(0, 0, 0, 0);
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -124,8 +127,6 @@ namespace glo
             });
 
             // Setup our program...
-            GLFN(GLUSEPROGRAM, glUseProgram)
-            GLFN(GLGETUNIFORMLOCATION, glGetUniformLocation)
             glUseProgram(program_);
             vert_xy_location_ = glGetUniformLocation(program_, "xy");
             vert_wh_location_ = glGetUniformLocation(program_, "wh");
@@ -138,24 +139,20 @@ namespace glo
 
         void set_foreground()
         {
-            GLFN(GLUSEPROGRAM, glUseProgram)
-            GLFN(GLUNIFORM4F, glUniform4f)
             glUseProgram(program_);
             glUniform4f(frag_fgcolour_location_, fg_r_, fg_g_, fg_b_, fg_a_);
         }
 
         void set_background()
         {
-            GLFN(GLUSEPROGRAM, glUseProgram)
-            GLFN(GLUNIFORM4F, glUniform4f)
             glUseProgram(program_);
             glUniform4f(frag_fgcolour_location_, fg_r_, fg_g_, fg_b_, fg_a_);
         }
 
         void paint_glyph(const glyph& g, float x, float y)
         {
-            GLFN(GLUNIFORM2F, glUniform2f)
-                glUniform2f(vert_xy_location_, x * x_step_, y * y_step_);
+            //GLFN(GLUNIFORM2F, glUniform2f)
+            glUniform2f(vert_xy_location_, x * x_step_, y * y_step_);
             glUniform2f(vert_wh_location_, g.width_ * glyph_x_scale_ * x_step_, g.height_ * glyph_y_scale_ * y_step_);
             glUniform2f(vert_stxy_location_, static_cast<float>(g.x_) * s_step_, static_cast<float>(g.y_) * t_step_);
             glUniform2f(vert_stwh_location_, static_cast<float>(g.width_) * s_step_, static_cast<float>(g.height_) * t_step_);
@@ -275,8 +272,8 @@ namespace glo
         // paint (at pixelx, pixel y)
         void paint(const std::string& str, int x, int y, int stride = 0)
         {
-            float xx = static_cast<float>(x);// static_cast<float>(origin_x_ + (char_dim_width_ * column));
-            float yy = static_cast<float>(y);// static_cast<float>(origin_y_ + (char_dim_height_ * row));
+            float xx = static_cast<float>(x);
+            float yy = static_cast<float>(y);
             for (unsigned int c = 0; c < str.size(); ++c)
             {
                 char ch = str[c];

@@ -65,6 +65,11 @@ namespace glo
         int width_;
         int height_;
     public:
+        texture()
+            : id_(0), width_(0), height_(0)
+        {
+        }
+
         texture(const image& img, GLint filtering, GLint wrapping)
             : id_(0), width_(img.width_), height_(img.height_)
         {
@@ -76,33 +81,41 @@ namespace glo
         int image_width() const { return width_; }
         int image_height() const { return height_; }
 
-        void cache(const image& img, GLint filtering, GLint wrapping)
+        void cache(int width, int height, int texelStrideInBytes, void* data, GLint filtering, GLint wrapping)
         {
             if (!id_)
                 glGenTextures(1, &id_);
             glBindTexture(GL_TEXTURE_2D, id_);
 
-            switch (img.channels_)
+            switch (texelStrideInBytes)
             {
             case 3:     // 24bit RGB (byte)
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.width_, img.height_, 0, GL_RGB, GL_UNSIGNED_BYTE, &img.data_.front());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, static_cast<unsigned char*>(data));
                 break;
             case 4:     // 32bit RGBA (byte)
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width_, img.height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, &img.data_.front());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, static_cast<unsigned char*>(data));
                 break;
             case 12:     // 96bit RGB (float)
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.width_, img.height_, 0, GL_RGB, GL_FLOAT, &img.data_.front());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, static_cast<float*>(data));
                 break;
             case 16:     // 128bit RGBA
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width_, img.height_, 0, GL_RGBA, GL_FLOAT, &img.data_.front());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, static_cast<float*>(data));
                 break;
             }
+
+            width_ = width;
+            height_ = height;
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
             glBindTexture(GL_TEXTURE_2D, NULL);
+        }
+
+        void cache(const image& img, GLint filtering, GLint wrapping)
+        {
+            cache(img.width_, img.height_, img.channels_, (void*)&img.data_.front(), filtering, wrapping);
         }
 
         void free()
