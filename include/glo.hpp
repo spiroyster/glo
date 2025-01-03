@@ -8,6 +8,6 @@
 #include "glo/glos.hpp"				// Shader
 #include "glo/glot.hpp"				// Texture
 #include "glo/glotf.hpp"			// Typeface (text, bitmap font, ttf font)
-#include "glo/glow.hpp"				// Window
+#include "glo/gloc.hpp"			// Camera
 
 #endif // GLO_HPP

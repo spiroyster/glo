@@ -100,7 +100,7 @@ namespace glo
             glBindBuffer(GL_ARRAY_BUFFER, NULL);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NULL);
         }
-        void draw_frame(GLuint frame)
+        void draw_frame(GLuint frame) const
         {
             glUseProgram(program_);
             glActiveTexture(GL_TEXTURE0);

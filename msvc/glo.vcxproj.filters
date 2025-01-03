@@ -21,9 +21,6 @@
     <ClInclude Include="..\include\glo.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\glo\glohud.hpp">
-      <Filter>Header Files\glo</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\glo\glofb.hpp">
       <Filter>Header Files\glo</Filter>
     </ClInclude>
@@ -42,10 +39,10 @@
     <ClInclude Include="..\include\glo\glotf.hpp">
       <Filter>Header Files\glo</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\glo\glow.hpp">
+    <ClInclude Include="..\include\glo\glohud.hpp">
       <Filter>Header Files\glo</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\glo\glohud2.hpp">
+    <ClInclude Include="..\include\glo\gloc.hpp">
       <Filter>Header Files\glo</Filter>
     </ClInclude>
   </ItemGroup>

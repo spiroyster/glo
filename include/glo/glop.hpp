@@ -22,9 +22,6 @@
 #define GLFN_DEFINE(prototype, name) name = (GLFN_PROTOTYPE(prototype))wglGetProcAddress(#name);
 #define GLFN(prototype, name) GLFN_PROTOTYPE(prototype) name = (GLFN_PROTOTYPE(prototype))wglGetProcAddress(#name);
 
-// platform string type
-#define glwindow_str std::wstring
-
 // Platform specific compiler warning...
 #define GLO_WARNING(msg) 
 
@@ -38,7 +35,23 @@
 #ifndef GLO_X
 
 #if defined(__linux__) || defined(__unix__)
+
 #define GLO_X
+
+// X11 includes
+#include<stdio.h>
+#include<stdlib.h>
+#include<X11/X.h>
+#include<X11/Xlib.h>
+#include<GL/gl.h>
+#include<GL/glx.h>
+
+// GL Function macros...
+#define GLFN_PROTOTYPE(prototype) PFN ## prototype ## PROC
+#define GLFN_DECLARE(prototype, name) GLFN_PROTOTYPE(prototype) name;
+#define GLFN_DEFINE(prototype, name) name = (GLFN_PROTOTYPE(prototype))glXGetProcAddress((const GLubyte *)#name);
+#define GLFN(prototype, name) GLFN_PROTOTYPE(prototype) name = (GLFN_PROTOTYPE(prototype))glXGetProcAddress((const GLubyte *)#name);
+
 #endif
 
 #endif

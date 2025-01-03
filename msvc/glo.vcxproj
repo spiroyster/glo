@@ -140,15 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\glo.hpp" />
-    <ClInclude Include="..\include\glo\glohud.hpp" />
+    <ClInclude Include="..\include\glo\gloc.hpp" />
     <ClInclude Include="..\include\glo\glofb.hpp" />
-    <ClInclude Include="..\include\glo\glohud2.hpp" />
+    <ClInclude Include="..\include\glo\glohud.hpp" />
     <ClInclude Include="..\include\glo\glop.hpp" />
     <ClInclude Include="..\include\glo\gloq.hpp" />
     <ClInclude Include="..\include\glo\glos.hpp" />
     <ClInclude Include="..\include\glo\glot.hpp" />
     <ClInclude Include="..\include\glo\glotf.hpp" />
-    <ClInclude Include="..\include\glo\glow.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

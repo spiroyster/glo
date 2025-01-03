@@ -1,18 +1,18 @@
-// Main for glo window...
-
 #define GLO_USE_STB
 
-#include <glo\glow.hpp>
-#include <glo\glohud2.hpp>
+#include <glo.hpp>
 
-//float angle = 0.0f;
+#include "shogl.hpp"
 
+// Our HUD object...
 std::unique_ptr<glo::hud> hud_;
+
 GLuint vao_;
 GLuint program_;
 
-GLWINDOW(4, 3)
+SHOGL()
 {
+    // Get our GL functions we need...
     GLFN(GLGENVERTEXARRAYS, glGenVertexArrays)
     GLFN(GLGENBUFFERS, glGenBuffers)
     GLFN(GLBINDBUFFER, glBindBuffer)
@@ -21,21 +21,9 @@ GLWINDOW(4, 3)
     GLFN(GLVERTEXATTRIBPOINTER, glVertexAttribPointer)
     GLFN(GLUSEPROGRAM, glUseProgram)
     GLFN(GLBINDVERTEXARRAY, glBindVertexArray)
+    
 
-    // set the window title...
-    glwindow::title(L"glohud example");
-
-    // set the dimensions...
-    glwindow::width(800);
-    glwindow::height(600);
-
-    // target FPS (the polling rate of window redraw, or 0 for auto)...
-    glwindow::target_fps(60);
-
-    // mouse click duration (duration of pressed mouse button, anything press longer than this does NOT register as a 'click')...
-    glwindow::click_duration(100);
-
-    // Create our geometry...
+	// Create our scene geometry (red triangle)...
     std::vector<float> points = { -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
     unsigned int pointBuffer;
 
@@ -54,10 +42,10 @@ GLWINDOW(4, 3)
             glo::glsl_compile(GL_VERTEX_SHADER, 
             R"(
                 #version 410 core
-                in vec3 point;
+                layout(location=0) in vec3 inPoint;
                 void main()
                 {
-   	                gl_Position = vec4(point, 1.0);
+                    gl_Position = vec4(inPoint, 1.0);
                 }
             )"), 
             glo::glsl_compile(GL_FRAGMENT_SHADER, 
@@ -71,10 +59,15 @@ GLWINDOW(4, 3)
             )") 
         });
 
-    // Create our hud...it uses a bitmap font (load an image) so first we need create that..
+
+    // Create our hud...it can use either a bitmap font or ttf font...
     //hud_ = std::make_unique<glo::hud>(800, 600, glo::bitmap_font(glo::image_read("font1.png"), 0, 512 - (3 * 32), 32, -32));
     hud_ = std::make_unique<glo::hud>(800, 600, glo::ttf_font("rhregular.ttf", 48));
+    
+    // Set the char dimensions...
     hud_->char_dim(20, 30);
+
+    // Set the char stride (not applicable for bitmap fonts which have constant stride)...
     hud_->char_stride(-1);
 
     // Add some text
@@ -83,45 +76,49 @@ GLWINDOW(4, 3)
     *hud_ << "\n";
     *hud_ << "some buffer text...\n";
 
-    // Set the colour...
-    //hud_->colour(0, 1.0, 0, 0.2);
-    //hud_->background(0, 0, 1.0f, 1.0f);
 
-}
 
-GLWINDOW_DRAW
-{
-    GLFN(GLUSEPROGRAM, glUseProgram)
-    GLFN(GLBINDVERTEXARRAY, glBindVertexArray)
+    // Setup the window attributes...
+    shogl()->window_fps(60);
+    shogl()->window_size(800, 600);
 
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // as well as drawing our geometry...
-    glUseProgram(program_);
-    glBindVertexArray(vao_);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(NULL);
-    glUseProgram(NULL);
-
-    // we also draw the hud...
-    hud_->draw_frame();
-
-    // To manually draw text, colour changes honoured, use draw, draws, drawc etc...
-    hud_->draw_frame([=]() 
+    // Our window draw routine...
+    shogl()->draw([=]()
         {
-            hud_->fg(0, 1.0, 0);
-            hud_->draw("some drawn\ntext", 10, 10, -1);
-
-            hud_->fg(0, 0, 1.0);
-            hud_->paint("some painted\ntext", 10, 50, 0);
+            // Draw our scene...
+            glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
+            glUseProgram(program_);
+            glBindVertexArray(vao_);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glBindVertexArray(NULL);
+            glUseProgram(NULL);
+                
+            // we also draw the hud...
+            hud_->draw_frame();
+                
+            // To manually draw text, colour changes honoured, use draw, draws, drawc etc...
+            hud_->draw_frame([=]() 
+                {
+                    hud_->fg(0, 1.0, 0);
+                    hud_->draw("some drawn\ntext", 10, 10, -1);
+                
+                    hud_->fg(0, 0, 1.0);
+                    hud_->paint("some painted\ntext", 10, 50, 0);
+                });
+            
         });
+
+    // Our window resize routine (needs to resize the HUD as well as viewport)...
+    shogl()->resize([](int width, int height) 
+        {
+            // Resize the viewport...
+            glViewport(0, 0, width, height);
+            
+            // Resize the HUD (this means text will alaways be same size, no matter scene aspect etc)...
+            hud_->resize(width, height);
+        });
+
 }
 
-GLWINDOW_RESIZE(w, h)
-{
-    glViewport(0, 0, w, h);
 
-    // Resize the hud
-    hud_->resize(w, h);
-}
