@@ -142,6 +142,7 @@
     <ClInclude Include="..\include\glo.hpp" />
     <ClInclude Include="..\include\glo\gloc.hpp" />
     <ClInclude Include="..\include\glo\glofb.hpp" />
+    <ClInclude Include="..\include\glo\glog.hpp" />
     <ClInclude Include="..\include\glo\glohud.hpp" />
     <ClInclude Include="..\include\glo\glop.hpp" />
     <ClInclude Include="..\include\glo\gloq.hpp" />

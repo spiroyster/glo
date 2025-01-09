@@ -45,5 +45,8 @@
     <ClInclude Include="..\include\glo\gloc.hpp">
       <Filter>Header Files\glo</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\glo\glog.hpp">
+      <Filter>Header Files\glo</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

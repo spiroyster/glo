@@ -38,7 +38,7 @@ SHOGL()
 	// See https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life for more info on the game of life algorithm.
 	program_ = glo::glsl_link(
 		{
-			glo::glsl_compile(GL_VERTEX_SHADER, R"(
+			/*glo::glsl_compile(GL_VERTEX_SHADER, R"(
 				#version 430 core
 				layout(location = 0) in vec3 in_point;
 				layout(location = 1) in vec2 in_uv;
@@ -48,7 +48,9 @@ SHOGL()
     				gl_Position = vec4(in_point, 1.0);
 					uv = in_uv;
 				}
-			)"),
+			)"),*/
+			quad_->pass_through_vertex_shader(),
+
 			glo::glsl_compile(GL_FRAGMENT_SHADER, R"(
 				#version 430 core
 				uniform sampler2D in_frame;

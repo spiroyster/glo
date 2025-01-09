@@ -13,6 +13,7 @@ namespace glo
     {
         GLuint points_, uvs_, indexes_, vao_;
         GLuint program_;
+        GLuint vertex_shader_;      // can be used for pass through...
 
         GLFN(GLGENVERTEXARRAYS, glGenVertexArrays)
         GLFN(GLBINDVERTEXARRAY, glBindVertexArray)
@@ -59,7 +60,7 @@ namespace glo
             glBindVertexArray(NULL);
 
 
-            GLuint vertex = glsl_compile(GL_VERTEX_SHADER, R"(
+            vertex_shader_ = glsl_compile(GL_VERTEX_SHADER, R"(
 				#version 410 core
 				layout(location = 0) in vec3 in_point;
 				layout(location = 1) in vec2 in_uv;
@@ -82,7 +83,10 @@ namespace glo
 				}
 			)");
 
-            program_ = glsl_link({ vertex, fragment });
+            program_ = glsl_link({ vertex_shader_, fragment });
+
+            // delete the fragment shader (not needed)...
+
         }
 
         virtual ~quad() {}
@@ -109,6 +113,8 @@ namespace glo
             draw();
             glBindTexture(GL_TEXTURE_2D, NULL);
         }
+
+        GLuint pass_through_vertex_shader() const { return vertex_shader_; }
     };
 }
 

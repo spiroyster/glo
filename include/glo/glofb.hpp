@@ -58,7 +58,8 @@ namespace glo
             depth_.attachment_ = GL_DEPTH_ATTACHMENT;
 
             glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-            glGenTextures(GL_TEXTURE_2D, &depth_.texture_);
+            glGenTextures(1, &depth_.texture_);
+            glBindTexture(GL_TEXTURE_2D, depth_.texture_);
             glTexImage2D(GL_TEXTURE_2D, 0, depth_.internal_format_, static_cast<GLsizei>(width_ * scale_), static_cast<GLsizei>(height_ * scale_), 0, depth_.format_, depth_.type_, 0);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -100,10 +101,70 @@ namespace glo
         }
 
         const std::vector<attachment>& color_attachment() const { return attachments_; }
+        const attachment& depth_attachment() const { return depth_; }
 
         GLuint fbo() const { return fbo_; }
         GLsizei width() const { return static_cast<GLsizei>(width_ * scale_); }
         GLsizei height() const { return static_cast<GLsizei>(height_ * scale_); }
+
+        //template <class T>
+        //T pixel(int x, int y, GLint colour_attachment)
+        //{
+        //    const frame_buffer::attachment& target = fb.color_attachment()[static_cast<unsigned int>(colour_attachment - GL_COLOR_ATTACHMENT0)];
+        //    
+        //    if (target.type_ == GL_FLOAT)
+        //    {
+        //        std::vector<float> buffer(result.width_ * result.height_ * result.channels_);
+        //        glReadBuffer(target.attachment_);
+        //        glReadPixels(x, y, 1, 0, target.format_, target.type_, &buffer.front());
+
+        //        // convert to rgba32...
+        //        result.data_ = std::vector<unsigned char>(result.width_ * result.height_ * result.channels_);
+        //        for (unsigned int b = 0; b < buffer.size(); ++b)
+        //            result.data_[b] = static_cast<unsigned char>(buffer[b] * 255.0f);
+        //    }
+        //    if (target.type_ == GL_UNSIGNED_BYTE)
+        //    {
+        //        result.data_ = std::vector<unsigned char>(result.width_ * result.height_ * result.channels_);
+        //        glReadBuffer(target.attachment_);
+        //        glReadPixels(0, 0, result.width_, result.height_, target.format_, target.type_, &result.data_.front());
+        //    }
+
+
+        //}
+
+        //std::vector<GLfloat> pixel(GLuint colour_attachment)
+        //{
+        //    GLFN(GLBINDFRAMEBUFFER, glBindFramebuffer)
+        //    glBindFramebuffer(GL_READ_FRAMEBUFFER, fb.fbo());
+        //    if (colour_attachment == GL_DEPTH_ATTACHMENT)
+        //    {
+        //        throw std::runtime_error("read depth buffer nyi.");
+        //    }
+        //    else
+        //    {
+        //        const frame_buffer::attachment& target = fb.color_attachment()[static_cast<unsigned int>(colour_attachment - GL_COLOR_ATTACHMENT0)];
+        //        if (target.type_ == GL_FLOAT)
+        //        {
+        //            std::vector<float> buffer(result.width_ * result.height_ * result.channels_);
+        //            glReadBuffer(target.attachment_);
+        //            glReadPixels(0, 0, result.width_, result.height_, target.format_, target.type_, &buffer.front());
+
+        //            // convert to rgba32...
+        //            result.data_ = std::vector<unsigned char>(result.width_ * result.height_ * result.channels_);
+        //            for (unsigned int b = 0; b < buffer.size(); ++b)
+        //                result.data_[b] = static_cast<unsigned char>(buffer[b] * 255.0f);
+        //        }
+        //        if (target.type_ == GL_UNSIGNED_BYTE)
+        //        {
+        //            result.data_ = std::vector<unsigned char>(result.width_ * result.height_ * result.channels_);
+        //            glReadBuffer(target.attachment_);
+        //            glReadPixels(0, 0, result.width_, result.height_, target.format_, target.type_, &result.data_.front());
+        //        }
+        //    }
+        //    glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
+        //    return result;
+        //}
 
         // blit ?
 
@@ -128,7 +189,7 @@ namespace glo
         result.data_ = std::vector<unsigned char>(result.width_ * result.height_ * result.channels_);
 
         GLFN(GLBINDFRAMEBUFFER, glBindFramebuffer)
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
         glReadPixels(0, 0, result.width_, result.height_, GL_RGBA, GL_UNSIGNED_BYTE, &result.data_.front());
         glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
         return result;
@@ -142,7 +203,7 @@ namespace glo
         result.channels_ = 4;
 
         GLFN(GLBINDFRAMEBUFFER, glBindFramebuffer)
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, fb.fbo());
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fb.fbo());
         if (colour_attachment == GL_DEPTH_ATTACHMENT)
         {
             throw std::runtime_error("read depth buffer nyi.");

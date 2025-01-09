@@ -67,7 +67,57 @@ namespace glo
 
         return programID;
     }
+
+    class UBO
+    {
+    public:
+        UBO(const std::string& name, unsigned int size, unsigned int binding)
+            : name_(name), bufferID_(0), binding_(binding)
+        {
+            GLFN(GLGENBUFFERS, glGenBuffers)
+            GLFN(GLBINDBUFFER, glBindBuffer)
+            GLFN(GLBINDBUFFERBASE, glBindBufferBase)
+
+            glGenBuffers(1, &bufferID_);
+            glBindBuffer(GL_UNIFORM_BUFFER, bufferID_);
+            glBindBufferBase(GL_UNIFORM_BUFFER, binding_, bufferID_);
+            glBindBuffer(GL_UNIFORM_BUFFER, NULL);
+        }
+
+        GLuint bufferID() const { return bufferID_; }
+        GLuint binding() const { return binding_; }
+        const std::string& name() const { return name_; }
+
+        void free()
+        {
+            if (bufferID_)
+            {
+                GLFN(GLDELETEBUFFERS, glDeleteBuffers)
+                    glDeleteBuffers(1, &bufferID_);
+                bufferID_ = 0;
+            }
+        }
+
+        void set(unsigned int offset, unsigned int size, void* data)
+        {
+            GLFN(GLBINDBUFFER, glBindBuffer)
+            GLFN(GLBUFFERSUBDATA, glBufferSubData)
+
+            glBindBuffer(GL_UNIFORM_BUFFER, bufferID_);
+            glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+            glBindBuffer(GL_UNIFORM_BUFFER, NULL);
+        }
+
+    private:
+        std::string name_;
+        GLuint bufferID_;
+        GLuint binding_;
+    };
 }
 
+
+//#define UBO_MEMBER(class_name, member_name, member_type)
+//member_type member_name_; \
+//void #member_name(#member_type val) { set(offsetof(#class_name, #member_name), sizeof(#class_name::#member_name), &val); }
 
 #endif // GLOS_HPP

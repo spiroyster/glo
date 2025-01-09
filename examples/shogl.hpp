@@ -586,7 +586,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
     }
     case WM_MOUSEMOVE:
     {
-        shogl()->mouse_move(LOWORD(lParam), HIWORD(lParam));
+        shogl()->mouse_move(LOWORD(lParam), shogl()->window_height() - HIWORD(lParam));
         break;
     }
     case WM_LBUTTONDOWN:
@@ -599,7 +599,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
     {
         int x = LOWORD(lParam);
         int y = HIWORD(lParam);
-        shogl()->mouse_up(x, shogl()->window_height() - y, shogl_window::mouse_button::left);
+        shogl()->mouse_up(LOWORD(lParam), shogl()->window_height() - HIWORD(lParam), shogl_window::mouse_button::left);
         ReleaseCapture();
         break;
     }
@@ -716,7 +716,7 @@ public:
         pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
         pfd.iPixelType = PFD_TYPE_RGBA;
         pfd.cColorBits = 32;
-        pfd.cDepthBits = 32;
+        pfd.cDepthBits = 24;
         pfd.cStencilBits = 8;
         pfd.iLayerType = PFD_MAIN_PLANE;
 

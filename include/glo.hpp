@@ -9,5 +9,6 @@
 #include "glo/glot.hpp"				// Texture
 #include "glo/glotf.hpp"			// Typeface (text, bitmap font, ttf font)
 #include "glo/gloc.hpp"			// Camera
+#include "glo/glog.hpp"			// Geometry
 
 #endif // GLO_HPP
