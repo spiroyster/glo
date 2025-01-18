@@ -94,9 +94,9 @@ std::shared_ptr<glo::geometry> load_geometry(const std::string& filename)
 		// read three indices...
 		for (unsigned int v = 0; v < 3; ++v)
 		{
-			unsigned int index = (f * 3) + v;
-			unsigned int vertex_id = obj->faces_[f].vertices_[v].p_;
-			unsigned int normal_id = obj->faces_[f].vertices_[v].n_;
+			int index = (f * 3) + v;
+			int vertex_id = obj->faces_[f].vertices_[v].p_;
+			int normal_id = obj->faces_[f].vertices_[v].n_;
 			
 			vertices[(index * 3) + 0] = static_cast<float>(obj->p_[vertex_id].x_);
 			vertices[(index * 3) + 1] = static_cast<float>(obj->p_[vertex_id].y_);
