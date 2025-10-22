@@ -112,7 +112,7 @@ SHOGL()
 
 
 	// Setup the window attributes...
-	shogl()->window_fps(60);
+	shogl()->window_fps(30);
 	shogl()->window_size(playfield_width, playfield_height);
 
 	// Our window draw routine...

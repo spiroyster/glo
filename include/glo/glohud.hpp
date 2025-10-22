@@ -151,7 +151,6 @@ namespace glo
 
         void paint_glyph(const glyph& g, float x, float y)
         {
-            //GLFN(GLUNIFORM2F, glUniform2f)
             glUniform2f(vert_xy_location_, x * x_step_, y * y_step_);
             glUniform2f(vert_wh_location_, g.width_ * glyph_x_scale_ * x_step_, g.height_ * glyph_y_scale_ * y_step_);
             glUniform2f(vert_stxy_location_, static_cast<float>(g.x_) * s_step_, static_cast<float>(g.y_) * t_step_);
