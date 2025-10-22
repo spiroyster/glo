@@ -1,5 +1,5 @@
 #define GLO_USE_STB
-
+ 
 #include <glo.hpp>
 
 #include "shogl.hpp"

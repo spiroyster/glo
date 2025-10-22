@@ -102,7 +102,7 @@ namespace glo
 
 		
 		// Projection matrix...
-		matrix44 P() const
+		const matrix44& P() const
 		{
 			matrix44 result = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 			if (fov_)
@@ -127,7 +127,7 @@ namespace glo
 		}
 
 		// View matrix...
-		matrix44 V() const
+		const matrix44& V() const
 		{
 			vec3 f = unitise(subtract(focal(), position_));
 			vec3 s = unitise(cross(f, up_));
